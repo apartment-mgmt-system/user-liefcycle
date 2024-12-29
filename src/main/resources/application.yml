@@ -55,7 +55,7 @@ springdoc:
 jwt:
   expiration: 3600000
   secret:
-    key: ${JWT-SECRET-KEY}
+    key: ${JWT_SECRET_KEY}
     
 application:
   base:
