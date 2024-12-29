@@ -1,0 +1,486 @@
+openapi: 3.0.3
+info:
+  title: User Management Microservice
+  description: Manages user, role operations, access control, and visitor approvals within the apartment management system.
+  version: 1.0.0
+
+paths:
+  /admin/users:
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      operationId: createUser
+      requestBody:
+        description: Details for creating a new user, including roles
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+            example:
+              name: "John Doe"
+              userName: "johnDoe"
+              email: "john.doe@example.com"
+              apartmentDetails: "A-101, XYZ Apartment"
+              roles:
+                - "ROLE_TENANT"
+                - "ROLE_ADMIN"
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+              example:
+                userId: 1
+                name: "John Doe"
+                userName: "USER-johndoe"
+                email: "john.doe@example.com"
+                apartmentDetails: "A-101, XYZ Apartment"
+                roles:
+                  - "ROLE_TENANT"
+                  - "ROLE_ADMIN"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      operationId: getAllUsers
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserResponse"
+              example:
+                - userId: 1
+                  name: "John Doe"
+                  userName: "johndoe"
+                  email: "john.doe@example.com"
+                  apartmentDetails: "A-101, XYZ Apartment"
+                  roles:
+                    - "ROLE_TENANT"
+                - userId: 2
+                  name: "Jane Smith"
+                  userName: "janesmith"
+                  email: "jane.smith@example.com"
+                  apartmentDetails: "B-202, XYZ Apartment"
+                  roles:
+                    - "ROLE_ADMIN"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /admin/users/{userName}:
+    get:
+      tags:
+        - Users
+      summary: Get a user by userName
+      operationId: getUserByuserName
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 50
+          description: userName of the user to retrieve
+      responses:
+        "200":
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+              example:
+                userId: 1
+                name: "John Doe"
+                userName: "USER-johndoe"
+                email: "john.doe@example.com"
+                apartmentDetails: "A-101, XYZ Apartment"
+                roles:
+                  - "ROLE_TENANT"
+                  - "ROLE_ADMIN"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    put:
+      tags:
+        - Users
+      summary: Update an existing user
+      operationId: updateUser
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: userName of the user to update
+      requestBody:
+        description: The user details to update, including roles
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDto"
+            example:
+              name: "John Doe Updated"
+              email: "john.updated@example.com"
+              userName: "johnupdated"
+              apartmentDetails: "A-102, XYZ Apartment"
+              roles:
+                - "ROLE_TENANT"
+      responses:
+        "200":
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+              example:
+                userId: 1
+                name: "John Doe Updated"
+                userName: "johnupdated"
+                email: "john.updated@example.com"
+                apartmentDetails: "A-102, XYZ Apartment"
+                roles:
+                  - "ROLE_TENANT"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      tags:
+        - Users
+      summary: Delete a user by ID
+      operationId: deleteUser
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the user to delete
+      responses:
+        "200":
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "User deleted succesfully"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /admin/roles:
+    post:
+      tags:
+        - Roles
+      summary: Create a new role
+      operationId: createRole
+      requestBody:
+        description: The role details to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleDto"
+            example:
+              roleCode: "ROLE_ADMIN"
+              roleName: "Administrator"
+      responses:
+        "201":
+          description: Role created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleResponse"
+              example:
+                roleId: "role-789"
+                roleCode: "ROLE_ADMIN"
+                roleName: "Administrator"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    get:
+      tags:
+        - Roles
+      summary: Retrieve a list of all roles
+      operationId: getAllRoles
+      responses:
+        "200":
+          description: A list of roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RoleResponse"
+              example:
+                - roleId: "role-789"
+                  roleCode: "ROLE_ADMIN"
+                  roleName: "Administrator"
+                - roleId: "role-790"
+                  roleCode: "ROLE_USER"
+                  roleName: "User"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /admin/roles/{code}:
+    put:
+      tags:
+        - Roles
+      summary: Update an existing role
+      operationId: updateRole
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 50
+            pattern: "^[A-Z_]+$"
+          description: code of the role to update
+      requestBody:
+        description: The role details to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleDto"
+            example:
+              roleCode: "ROLE_SECURITY"
+              roleName: "Security Staff"
+      responses:
+        "200":
+          description: Role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleResponse"
+              example:
+                roleId: "role-789"
+                roleCode: "ROLE_SECURITY"
+                roleName: "Security Staff"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    get:
+      tags:
+        - Roles
+      summary: Retrieve a role by code
+      operationId: getRoleByCode
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          description: code of the role to retrieve
+      responses:
+        "200":
+          description: Role details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleResponse"
+              example:
+                roleId: "role-789"
+                roleCode: "ROLE_ADMIN"
+                roleName: "Administrator"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /admin/visitors/request:
+    post:
+      tags:
+        - VisitorApproval
+      summary: Request visitor access
+      operationId: requestVisitorAccess
+      requestBody:
+        description: The visitor request details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitorRequestDto"
+            example:
+              visitorName: "Michael Brown"
+              requestedBy: "tenant-123"
+              tenantName: "David"
+              email: "niket@gmail.com"
+      responses:
+        "200":
+          description: visitor request submitted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: visitor request submitted successfully
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  schemas:
+    UserDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        email:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        userName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        apartmentDetails:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - email
+        - userName
+
+    UserResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        userName:
+          type: string
+        apartmentDetails:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+
+    RoleDto:
+      type: object
+      properties:
+        roleCode:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: "^[A-Z_]+$"
+        roleName:
+          type: string
+          minLength: 1
+          maxLength: 50
+      required:
+        - roleCode
+        - roleName
+
+    RoleResponse:
+      type: object
+      properties:
+        roleId:
+          type: string
+        roleCode:
+          type: string
+        roleName:
+          type: string
+
+    VisitorRequestDto:
+      type: object
+      properties:
+        visitorName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        requestedBy:
+          type: string
+          minLength: 1
+          maxLength: 50
+        tenantName:
+          type: string
+        email:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      required:
+        - visitorName
+        - requestedBy
+        - email
+
+    ErrorResponse:
+      type: object
+      description: Generic error response format
+      properties:
+        code:
+          type: string
+          description: The error code
+          example: "ERR-500"
+        message:
+          type: string
+          description: A message describing the error
+          example: "An unexpected error occurred"
+        details:
+          type: string
+          description: Optional error details for debugging
+          example: "Detailed error message for debugging purposes"
+      required:
+        - code
+        - message
+        - details
+
+  responses:
+    BadRequest:
+      description: Bad request due to invalid input
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"

@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: user-lifecycle-management
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    defer-datasource-initialization: true # Ensure datasource is initialized after schema generation
+  datasource:
+    url: jdbc:mysql://localhost:3306/User_Management
+    username: root
+    password: root
+    driverClassName: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:/data.sql
+  redis:
+    host: localhost
+    port: 6379
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer  
+    consumer:
+      bootstrap-servers: localhost:9092
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  cloud:
+    azure:
+      keyvault:
+        secret:
+          property-sources:
+            - endpoint: https://kv-aprtmt-system.vault.azure.net/
+        #uri: https://kv-aprtmt-system.vault.azure.net/
+      #credential:
+        #cli: true
+      
+server:
+  port: 8080
+
+# OpenAPI
+springdoc:
+  swagger-ui:
+    urls:
+      - name: User And Actor Mgmt API
+        url: /UserAndActorManagement.yml
+      - name: Login API
+        url: /LoginMgmt.yml
+
+jwt:
+  expiration: 3600000
+  secret:
+    key: ${JWT-SECRET-KEY}
+    
+application:
+  base:
+    url: http://localhost:8080
+
+test:
+  property: ${NIKET}

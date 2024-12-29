@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  title: Authentication Management Microservice
+  description: Manages user authentication and access control within the apartment management system.
+  version: 1.0.0
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      operationId: userLogin
+      requestBody:
+        description: Credentials for user login
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  minLength: 1
+                  maxLength: 50
+                password:
+                  type: string
+                  minLength: 1
+                  maxLength: 128
+              required:
+                - username
+                - password
+            example:
+              username: "johnDoe"
+              password: "securePassword123"
+      responses:
+        "200":
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SucessfulLoginResponse"
+        "401":
+          description: Unauthorized - invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      operationId: userLogout
+      responses:
+        "200":
+          description: Successful logout
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: The error code
+          example: "ERR-401"
+        message:
+          type: string
+          description: A message describing the error
+          example: "Invalid username or password"
+        details:
+          type: string
+          description: Optional error details for debugging
+          example: "Detailed error message for debugging purposes"
+      required:
+        - code
+        - message
+
+    SucessfulLoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT token for authentication
+        userName:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+      example:
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        userName: "Niket"
+        roles:
+          - "ROLE_TENANT"
+          - "ROLE_ADMIN"
+
+    LogoutResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message indicating successful logout
+          example: "Logout successful"
+      required:
+        - message
