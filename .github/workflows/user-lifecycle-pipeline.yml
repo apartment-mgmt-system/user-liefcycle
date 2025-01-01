@@ -64,8 +64,12 @@ jobs:
             --from-literal=db-password=${{ secrets.DB_PASSWORD }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      - name: Apply Kubernetes file user-lifecycle-pipeline
+        run: |
+          kubectl apply -f k8s/user-lifecycle-deployment.yml
+          
       # Step 10: Update Deployment to use the new Docker image and deploy to AKS
       - name: Deploy user service to AKS
         run: |
           # Update deployment YAML with the newly built Docker image
-          kubectl set image deployment/user-service user-service=${{ env.DOCKER_IMAGE }} --record
+          kubectl set image deployment/user-service user-service=${{ env.DOCKER_IMAGE }}
