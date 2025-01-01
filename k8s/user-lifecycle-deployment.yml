@@ -34,6 +34,11 @@ spec:
                 secretKeyRef:
                   name: user-service-secrets
                   key: db-password
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: jwt-secret-key
           ports:
             - containerPort: 8080
 
