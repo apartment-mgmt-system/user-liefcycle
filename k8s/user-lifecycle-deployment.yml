@@ -32,8 +32,8 @@ spec:
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: user-service-secrets
-                  key: db-password
+                  name: mysql-root-secret
+                  key: mysql-root-password
             - name: JWT_SECRET_KEY
               valueFrom:
                 secretKeyRef:
