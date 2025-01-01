@@ -44,7 +44,11 @@ jobs:
           azcliversion: "2.56.0"
           inlineScript: |
             # Azure login using device code (manual login)
-            export AZURE_CONFIG_DIR=$(mktemp -d)
+            rm -rf $HOME/.azure
+
+            # Set a config directory within the home folder
+            export AZURE_CONFIG_DIR="$HOME/.azure"
+            echo "Using config directory: $AZURE_CONFIG_DIR"
             az login --use-device-code
             
       - name: Retrieve and print NIKET secret from Azure Key Vault
