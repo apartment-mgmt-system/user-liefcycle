@@ -44,7 +44,6 @@ jobs:
           azcliversion: "2.56.0"
           inlineScript: |
             # Azure login using device code (manual login)
-            sudo chown -R $USER:$USER $HOME/.azure/
             export AZURE_CONFIG_DIR=$(mktemp -d)
             az login --use-device-code
       
