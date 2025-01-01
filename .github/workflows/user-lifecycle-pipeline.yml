@@ -69,10 +69,6 @@ jobs:
       - name: Apply Kubernetes file user-lifecycle-pipeline
         run: |
           kubectl apply -f k8s/user-lifecycle-deployment.yml
-          
-      - name: Test Access to Azure Key Vault
-        run: |
-          az keyvault secret show --vault-name kv-aprtmt-system --name JWT-SECRET-KEY --debug
 
       # Step 10: Update Deployment to use the new Docker image and deploy to AKS
       - name: Deploy user service to AKS
