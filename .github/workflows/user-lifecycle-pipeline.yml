@@ -1,0 +1,66 @@
+name: Deploy to AKS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 1: Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Step 2: Log in to Docker Hub or other container registry
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 3: Build Docker image
+      - name: Build Docker image
+        run: |
+          IMAGE_NAME="${{ secrets.DOCKER_REGISTRY }}/user-service:${GITHUB_SHA}"
+          docker build -t $IMAGE_NAME .
+          echo "DOCKER_IMAGE=$IMAGE_NAME" >> $GITHUB_ENV
+
+      # Step 4: Push Docker image to the registry
+      - name: Push Docker image
+        run: |
+          docker push ${{ env.DOCKER_IMAGE }}
+
+      # Step 5: Set up Azure CLI
+      - name: Set up Azure CLI
+        uses: azure/setup-azurecli@v1
+        with:
+          azure-cliversion: "2.29.0"
+
+      # Step 6: Azure login using device code (manual login)
+      - name: Azure login using device code
+        run: |
+          az login --use-device-code
+
+      # Step 7: Set AKS credentials using Azure CLI
+      - name: Set AKS credentials
+        run: |
+          az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_AKS_CLUSTER_NAME }} --overwrite-existing
+
+      # Step 8: Create Kubernetes secret for DB password from GitHub Secrets
+      - name: Create Kubernetes secret for DB password
+        run: |
+          kubectl create secret generic user-service-secrets \
+            --from-literal=db-password=${{ secrets.DB_PASSWORD }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      # Step 9: Update Deployment to use the new Docker image and deploy to AKS
+      - name: Deploy user service to AKS
+        run: |
+          # Update deployment YAML with the newly built Docker image
+          kubectl set image deployment/user-service user-service=${{ env.DOCKER_IMAGE }} --record
