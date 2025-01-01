@@ -41,11 +41,9 @@ jobs:
         uses: azure/CLI@v1
         with:
           azcliversion: "2.56.0"
-
-      # Step 6: Azure login using device code (manual login)
-      - name: Azure login using device code
-        run: |
-          az login --use-device-code
+          inlineScript: |
+            # Azure login using device code (manual login)
+            az login --use-device-code
 
       # Step 7: Set AKS credentials using Azure CLI
       - name: Set AKS credentials
