@@ -45,19 +45,26 @@ jobs:
             # Azure login using device code (manual login)
             az login --use-device-code
 
-      # Step 7: Set AKS credentials using Azure CLI
-      - name: Set AKS credentials
-        run: |
-          az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_AKS_CLUSTER_NAME }} --overwrite-existing
+      # Step 7: Set up Kubectl
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
 
-      # Step 8: Create Kubernetes secret for DB password from GitHub Secrets
+      # Step 8: Configure kubectl using kubeconfig
+      - name: Configure Kubectl using kubconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+
+      # Step 9: Create Kubernetes secret for DB password from GitHub Secrets
       - name: Create Kubernetes secret for DB password
         run: |
           kubectl create secret generic user-service-secrets \
             --from-literal=db-password=${{ secrets.DB_PASSWORD }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      # Step 9: Update Deployment to use the new Docker image and deploy to AKS
+      # Step 10: Update Deployment to use the new Docker image and deploy to AKS
       - name: Deploy user service to AKS
         run: |
           # Update deployment YAML with the newly built Docker image
