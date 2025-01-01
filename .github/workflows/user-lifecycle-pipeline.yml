@@ -46,20 +46,19 @@ jobs:
             #export AZURE_CONFIG_DIR=$(mktemp -d)
             #az login --use-device-code
             
-            # From here:
-            # Manually create the directory and ensure it's writable
+            # From here
+            # Create a temporary directory for Azure CLI configuration
             export AZURE_CONFIG_DIR=$(mktemp -d)
+
+            # Ensure the directory is writable
             mkdir -p $AZURE_CONFIG_DIR
-            chmod 777 $AZURE_CONFIG_DIR  # Make sure the directory is writable
-            
-            # Output the temporary directory to verify
-            echo "Temporary Azure CLI config directory: $AZURE_CONFIG_DIR"
-            
-            # Set the Azure CLI config directory environment variable
+            chmod 777 $AZURE_CONFIG_DIR  # Give write permissions
+
+            # Set the AZURE_CONFIG_DIR to the newly created directory
             export AZURE_CONFIG_DIR=$AZURE_CONFIG_DIR
             echo "AZURE_CONFIG_DIR set to: $AZURE_CONFIG_DIR"
             
-            # Azure login using device code (manual login)
+            # Run Azure CLI login manually using device code
             az login --use-device-code
             
       # Step 7: Set up Kubectl
