@@ -40,7 +40,7 @@ jobs:
       - name: Set up Azure CLI
         uses: azure/CLI@v1
         with:
-          azure-cliversion: "2.56.0"
+          azcliversion: "2.56.0"
 
       # Step 6: Azure login using device code (manual login)
       - name: Azure login using device code
