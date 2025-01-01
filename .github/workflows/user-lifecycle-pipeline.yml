@@ -37,31 +37,14 @@ jobs:
           docker push ${{ env.DOCKER_IMAGE }}
 
 
-      # Step 5: Set up Azure CLI
       - name: Set up Azure CLI
         uses: azure/CLI@v1
         with:
           azcliversion: "2.56.0"
           inlineScript: |
             # Azure login using device code (manual login)
-            pkill -f az
-            rm -rf $HOME/.azure
-
-            # Set a config directory within the home folder
-            export AZURE_CONFIG_DIR="$HOME/.azure"
-            echo "Using config directory: $AZURE_CONFIG_DIR"
-            az login --use-device-code
-            
-      - name: Retrieve and print NIKET secret from Azure Key Vault
-        run: |
-          # Set the Key Vault name
-          export KEY_VAULT_NAME="kv-aprtmt-system"
-          
-          # Retrieve the NIKET secret
-          NIKET_SECRET=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name "NIKET" --query "value" -o tsv)
-          
-          # Print the secret to the console for testing purposes
-          echo "The NIKET secret is: $NIKET_SECRET"
+            export AZURE_CONFIG_DIR=$(mktemp -d)
+            az login --use-device-code       
           
       # Step 7: Set up Kubectl
       - name: Set up kubectl
