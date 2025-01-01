@@ -46,7 +46,18 @@ jobs:
             # Azure login using device code (manual login)
             export AZURE_CONFIG_DIR=$(mktemp -d)
             az login --use-device-code
-      
+            
+      - name: Retrieve and print NIKET secret from Azure Key Vault
+        run: |
+          # Set the Key Vault name
+          export KEY_VAULT_NAME="kv-aprtmt-system"
+          
+          # Retrieve the NIKET secret
+          NIKET_SECRET=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name "NIKET" --query "value" -o tsv)
+          
+          # Print the secret to the console for testing purposes
+          echo "The NIKET secret is: $NIKET_SECRET"
+          
       # Step 7: Set up Kubectl
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
