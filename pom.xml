@@ -123,12 +123,12 @@
 			<groupId>com.azure.spring</groupId>
 			<artifactId>spring-cloud-azure-starter-keyvault-secrets</artifactId>
 			<version>5.19.0</version>
-		</dependency> -->
+		</dependency> 
 		<dependency>
 			<groupId>com.azure.spring</groupId>
 			<artifactId>spring-cloud-azure-starter-keyvault</artifactId>
 			<version>5.19.0</version>
-		</dependency>
+		</dependency> -->
 
 
 	</dependencies>

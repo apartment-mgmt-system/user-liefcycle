@@ -29,17 +29,7 @@ spring:
     consumer:
       bootstrap-servers: localhost:9092
       auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-  cloud:
-    azure:
-      keyvault:
-        secret:
-          property-sources:
-            - endpoint: https://kv-aprtmt-system.vault.azure.net/
-        #uri: https://kv-aprtmt-system.vault.azure.net/
-      #credential:
-        #cli: true
-      
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer      
 server:
   port: 8080
 
@@ -55,11 +45,11 @@ springdoc:
 jwt:
   expiration: 3600000
   secret:
-    key: ${JWT_SECRET_KEY}
+    key: placeholder
     
 application:
   base:
     url: http://localhost:8080
 
 test:
-  property: ${NIKET}
+  property: test

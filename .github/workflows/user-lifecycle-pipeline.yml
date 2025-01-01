@@ -36,7 +36,7 @@ jobs:
         run: |
           docker push ${{ env.DOCKER_IMAGE }}
 
-
+      # Step 5: Set up Azure CLI
       - name: Set up Azure CLI
         uses: azure/CLI@v1
         with:
@@ -45,26 +45,27 @@ jobs:
             # Azure login using device code (manual login)
             export AZURE_CONFIG_DIR=$(mktemp -d)
             az login --use-device-code       
-          
-      # Step 7: Set up Kubectl
+
+      # Step 6: Set up kubectl
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: "latest"
 
-      # Step 8: Configure kubectl using kubeconfig
-      - name: Configure Kubectl using kubconfig
+      # Step 7: Configure kubectl using kubeconfig
+      - name: Configure Kubectl using kubeconfig
         run: |
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
-      # Step 9: Create Kubernetes secret for DB password from GitHub Secrets
-      - name: Create Kubernetes secret for DB password
+      # Step 8: Create Kubernetes secret for JWT_SECRET_KEY from GitHub Secrets
+      - name: Create Kubernetes secret for JWT_SECRET_KEY
         run: |
-          kubectl create secret generic user-service-secrets \
-            --from-literal=db-password=${{ secrets.DB_PASSWORD }} \
+          kubectl create secret generic jwt-secret \
+            --from-literal=jwt-secret-key="${{ secrets.JWT_SECRET_KEY }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      # Step 9: Apply Kubernetes file user-lifecycle-pipeline
       - name: Apply Kubernetes file user-lifecycle-pipeline
         run: |
           kubectl apply -f k8s/user-lifecycle-deployment.yml
@@ -72,5 +73,4 @@ jobs:
       # Step 10: Update Deployment to use the new Docker image and deploy to AKS
       - name: Deploy user service to AKS
         run: |
-          # Update deployment YAML with the newly built Docker image
           kubectl set image deployment/user-service user-service=${{ env.DOCKER_IMAGE }}
