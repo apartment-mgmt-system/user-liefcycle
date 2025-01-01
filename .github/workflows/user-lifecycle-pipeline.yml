@@ -34,17 +34,7 @@ jobs:
       # Step 4: Push Docker image to the registry
       - name: Push Docker image
         run: |
-          docker push ${{ env.DOCKER_IMAGE }}
-
-      # Step 5: Set up Azure CLI
-      - name: Set up Azure CLI
-        uses: azure/CLI@v1
-        with:
-          azcliversion: "2.56.0"
-          inlineScript: |
-            # Azure login using device code (manual login)
-            export AZURE_CONFIG_DIR=$(mktemp -d)
-            az login --use-device-code       
+          docker push ${{ env.DOCKER_IMAGE }}   
 
       # Step 6: Set up kubectl
       - name: Set up kubectl
@@ -65,12 +55,19 @@ jobs:
             --from-literal=jwt-secret-key="${{ secrets.JWT_SECRET_KEY }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      # Step 9: Apply Kubernetes file user-lifecycle-pipeline
+      # Step 9: Create Kubernetes secret for MYSQL_ROOT_PASSWORD from GitHub Secrets
+      - name: Create Kubernetes secret for MYSQL_ROOT_PASSWORD
+        run: |
+          kubectl create secret generic mysql-root-secret \
+            --from-literal=mysql-root-password="${{ secrets.MYSQL_ROOT_PASSWORD }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      # Step 10: Apply Kubernetes file user-lifecycle-pipeline
       - name: Apply Kubernetes file user-lifecycle-pipeline
         run: |
           kubectl apply -f k8s/user-lifecycle-deployment.yml
 
-      # Step 10: Update Deployment to use the new Docker image and deploy to AKS
+      # Step 11: Update Deployment to use the new Docker image and deploy to AKS
       - name: Deploy user service to AKS
         run: |
           kubectl set image deployment/user-service user-service=${{ env.DOCKER_IMAGE }}
