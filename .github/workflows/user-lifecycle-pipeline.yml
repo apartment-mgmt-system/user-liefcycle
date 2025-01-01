@@ -43,14 +43,22 @@ jobs:
         with:
           azcliversion: "2.56.0"
           inlineScript: |
-            export AZURE_CONFIG_DIR=$HOME/.azure  # Ensure it's set to a writable directory
+            # Ensure the config directory is set to a writable directory
+            export AZURE_CONFIG_DIR=$HOME/.azure
             mkdir -p $AZURE_CONFIG_DIR
 
             # Write the azureProfile.json from GitHub secrets
             echo "${{ secrets.AZURE_PROFILE }}" > $AZURE_CONFIG_DIR/azureProfile.json
 
+            # Explicitly set permissions in case of any permission issues
+            chmod 600 $AZURE_CONFIG_DIR/azureProfile.json
+
+            # Optionally set the subscription explicitly (if needed)
+            az account set --subscription "your-subscription-id"
+
             # Now, no need for az login. Azure CLI will automatically use the profile
             az keyvault secret show --vault-name kv-aprtmt-system --name JWT-SECRET-KEY --debug
+
       
       # Step 7: Set up Kubectl
       - name: Set up kubectl
