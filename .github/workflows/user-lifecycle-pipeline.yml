@@ -38,7 +38,7 @@ jobs:
 
       # Step 5: Set up Azure CLI
       - name: Set up Azure CLI
-        uses: azure/azure-cli-action@v1
+        uses: azure/setup-azurecli@v2
         with:
           azure-cliversion: "2.29.0"
 
