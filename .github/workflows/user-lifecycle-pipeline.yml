@@ -44,6 +44,7 @@ jobs:
           azcliversion: "2.56.0"
           inlineScript: |
             # Azure login using device code (manual login)
+            pkill -f az
             rm -rf $HOME/.azure
 
             # Set a config directory within the home folder
