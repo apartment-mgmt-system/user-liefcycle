@@ -37,7 +37,6 @@ jobs:
           docker push ${{ env.DOCKER_IMAGE }}
 
 
-      # Step 5: Set up Azure CLI
       - name: Set up Azure CLI
         uses: azure/CLI@v1
         with:
@@ -50,13 +49,26 @@ jobs:
             # Write the azureProfile.json from GitHub secrets
             echo "${{ secrets.AZURE_PROFILE }}" > $AZURE_CONFIG_DIR/azureProfile.json
 
+            # Output the contents of the azureProfile.json to verify it is written correctly
+            echo "Contents of azureProfile.json:"
+            cat $AZURE_CONFIG_DIR/azureProfile.json
+
             # Explicitly set permissions in case of any permission issues
             chmod 600 $AZURE_CONFIG_DIR/azureProfile.json
+
+            # List available subscriptions to debug
+            echo "Listing available subscriptions..."
+            az account list --output table
+
+            # Check the currently selected subscription
+            echo "Checking current subscription..."
+            az account show --output table
 
             # Optionally set the subscription explicitly (if needed)
             az account set --subscription "your-subscription-id"
 
             # Now, no need for az login. Azure CLI will automatically use the profile
+            echo "Retrieving secret from Key Vault..."
             az keyvault secret show --vault-name kv-aprtmt-system --name JWT-SECRET-KEY --debug
 
       
