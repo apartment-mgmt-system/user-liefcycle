@@ -36,28 +36,22 @@ jobs:
         run: |
           docker push ${{ env.DOCKER_IMAGE }}
 
+
       # Step 5: Set up Azure CLI
       - name: Set up Azure CLI
         uses: azure/CLI@v1
         with:
           azcliversion: "2.56.0"
           inlineScript: |
-            # Azure login using device code (manual login)
-            #export AZURE_CONFIG_DIR=$(mktemp -d)
-            #az login --use-device-code
-            
-            # From here
-            # Set the AZURE_CONFIG_DIR to a temporary writable directory
-            export AZURE_CONFIG_DIR=$(mktemp -d)
-            echo "Using Azure config directory: $AZURE_CONFIG_DIR"
-
-            # Ensure the directory is writable and permissions are set correctly
+            export AZURE_CONFIG_DIR=$HOME/.azure  # Ensure it's set to a writable directory
             mkdir -p $AZURE_CONFIG_DIR
-            chmod 777 $AZURE_CONFIG_DIR  # Grant write permissions to the temp directory
 
-            # Log in using device code
-            az login --use-device-code
-            
+            # Write the azureProfile.json from GitHub secrets
+            echo "${{ secrets.AZURE_PROFILE }}" > $AZURE_CONFIG_DIR/azureProfile.json
+
+            # Now, no need for az login. Azure CLI will automatically use the profile
+            az keyvault secret show --vault-name kv-aprtmt-system --name JWT-SECRET-KEY --debug
+      
       # Step 7: Set up Kubectl
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
