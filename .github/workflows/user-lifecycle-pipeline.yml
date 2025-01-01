@@ -38,9 +38,9 @@ jobs:
 
       # Step 5: Set up Azure CLI
       - name: Set up Azure CLI
-        uses: azure/setup-azurecli@v2
+        uses: azure/CLI@v1
         with:
-          azure-cliversion: "2.29.0"
+          azure-cliversion: "2.56.0"
 
       # Step 6: Azure login using device code (manual login)
       - name: Azure login using device code
